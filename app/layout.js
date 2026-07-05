@@ -6,10 +6,10 @@ import Footer from "@/components/Footer";
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap" });
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
 
-const __jsonld = {"@context":"https://schema.org","@type":"RealEstateAgent","name":"Propertia","description":"Marketplace properti tepercaya","url":"https://properti-propertia.vercel.app","areaServed":"ID"};
+const __jsonld = {"@context":"https://schema.org","@type":"RealEstateAgent","name":"Propertia","description":"Marketplace properti tepercaya","url":"https://propertia.pintuweb.com","areaServed":"ID"};
 
 export const metadata = {
-  metadataBase: new URL("https://properti-propertia.vercel.app"),
+  metadataBase: new URL("https://propertia.pintuweb.com"),
   title: "Propertia — Temukan Rumah Impianmu",
   description: "Marketplace properti tepercaya: jual, beli, dan sewa rumah, apartemen, ruko, tanah, dan villa di seluruh Indonesia.",
   applicationName: "Propertia",
@@ -17,11 +17,11 @@ export const metadata = {
   authors: [{ name: "Propertia" }],
   creator: "Propertia",
   publisher: "Propertia",
-  alternates: { canonical: "https://properti-propertia.vercel.app" },
+  alternates: { canonical: "https://propertia.pintuweb.com" },
   openGraph: {
     type: "website",
     locale: "id_ID",
-    url: "https://properti-propertia.vercel.app",
+    url: "https://propertia.pintuweb.com",
     siteName: "Propertia",
     title: "Propertia — Temukan Rumah Impianmu",
     description: "Marketplace properti tepercaya: jual, beli, dan sewa rumah, apartemen, ruko, tanah, dan villa di seluruh Indonesia.",
