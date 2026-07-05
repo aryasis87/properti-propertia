@@ -1,26 +1,48 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
+
+  --color-cream: #f6f3ea;
+  --color-ink: #16231c;
+  --color-forest: #0f3d2e;
+  --color-forest-soft: #1c5641;
+  --color-sand: #eadfca;
+  --color-gold: #b3893f;
+  --color-muted: #5d6b62;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
 }
+
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
+
+/* Subtle paper grain over the cream */
+.grain {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.035; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--color-cream); }
+::-webkit-scrollbar-thumb { background: #c9bfa6; border-radius: 9999px; }
+
+:focus-visible { outline: 2px solid var(--color-forest); outline-offset: 2px; border-radius: 6px; }
+
+/* Arched (cathedral) image mask — signature architectural motif */
+.arch { border-top-left-radius: 9999px; border-top-right-radius: 9999px; border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem; }
+.arch-sm { border-top-left-radius: 7rem; border-top-right-radius: 7rem; border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem; }
+
+/* Marquee */
+@keyframes marquee-x { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.animate-marquee-x { animation: marquee-x 32s linear infinite; }
+
+/* Display numerals — outlined editorial index */
+.numeral-outline { -webkit-text-stroke: 1.5px var(--color-forest); color: transparent; }
