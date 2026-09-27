@@ -33,8 +33,8 @@ export default function KontakPage() {
             {sent ? (
               <div className="rounded-3xl border border-black/5 bg-white p-10 text-center shadow-sm">
                 <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-forest text-cream"><Check size={28} /></div>
-                <h2 className="mt-4 font-display text-2xl text-ink">Pesan terkirim!</h2>
-                <p className="mt-1 text-muted">Terima kasih, {form.nama}. Tim kami akan menghubungimu di {form.email} secepatnya.</p>
+                <h2 className="mt-4 font-display text-2xl text-ink">Terima kasih, {form.nama}!</h2>
+                <p className="mt-1 text-muted">Ini situs contoh, jadi pesanmu tidak dikirim ke mana pun. Pada marketplace sungguhan, pesan ini langsung masuk ke tim atau agen properti.</p>
                 <button onClick={() => { setSent(false); setForm({ nama: '', email: '', telepon: '', pesan: '' }); }} className="mt-6 rounded-full border border-black/10 px-6 py-2.5 text-sm font-semibold text-ink transition hover:border-forest hover:text-forest">Kirim lagi</button>
               </div>
             ) : (
