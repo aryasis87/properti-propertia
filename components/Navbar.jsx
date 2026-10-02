@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, House } from 'lucide-react';
-import { nav, site, waLink } from '@/lib/data';
+import { nav } from '@/lib/data';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -20,12 +20,12 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-8 md:flex">
           {nav.map((l) => (
-            <Link key={l.href} href={l.href} className={`text-sm font-medium transition ${active(l.href) ? 'text-forest' : 'text-ink/70 hover:text-forest'}`}>{l.label}</Link>
+            <Link key={l.href} href={l.href} aria-current={active(l.href) ? 'page' : undefined} className={`text-sm font-medium transition ${active(l.href) ? 'text-forest' : 'text-ink/75 hover:text-forest'}`}>{l.label}</Link>
           ))}
-          <a href={waLink(site.wa, 'Halo Propertia, saya mau pasang iklan properti.')} target="_blank" rel="noopener noreferrer" className="rounded-full bg-forest px-5 py-2 text-sm font-semibold text-cream transition hover:bg-forest-soft">Pasang Iklan</a>
+          <Link href="/kontak?topik=jual" className="rounded-full bg-forest px-5 py-2 text-sm font-semibold text-cream transition hover:bg-forest-soft">Ajukan listing</Link>
         </div>
 
-        <button className="text-forest md:hidden" onClick={() => setOpen((v) => !v)} aria-label="Menu" aria-expanded={open}>{open ? <X /> : <Menu />}</button>
+        <button className="text-forest md:hidden" onClick={() => setOpen((v) => !v)} aria-label={open ? 'Tutup menu' : 'Buka menu'} aria-expanded={open}>{open ? <X /> : <Menu />}</button>
       </nav>
 
       {open && (
@@ -33,7 +33,7 @@ export default function Navbar() {
           {nav.map((l) => (
             <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className={`block rounded-lg px-3 py-2.5 text-sm font-medium ${active(l.href) ? 'text-forest' : 'text-ink/70'}`}>{l.label}</Link>
           ))}
-          <a href={waLink(site.wa)} target="_blank" rel="noopener noreferrer" className="mt-2 block rounded-full bg-forest px-5 py-2.5 text-center text-sm font-semibold text-cream">Pasang Iklan</a>
+          <Link href="/kontak?topik=jual" onClick={() => setOpen(false)} className="mt-2 block rounded-full bg-forest px-5 py-2.5 text-center text-sm font-semibold text-cream">Ajukan listing</Link>
         </div>
       )}
     </header>

@@ -3,15 +3,16 @@ import Link from 'next/link';
 import {
   House, Building2, Store, Trees, Palmtree, BedDouble, Warehouse,
   Search, Tag, KeyRound, Landmark, UserCheck, ShieldCheck,
-  ArrowRight, ArrowUpRight, BadgeCheck, Star, ChevronDown, MapPin,
+  ArrowRight, ArrowUpRight, BadgeCheck, ChevronDown, MapPin, Ruler, Calculator,
 } from 'lucide-react';
 import Reveal from '@/components/ui/Reveal';
 import SearchBar from '@/components/SearchBar';
 import PropertyCard from '@/components/PropertyCard';
-import { site, stats, kategori, properti, services, keunggulan, testimonials, faqs, formatHarga, waLink } from '@/lib/data';
+import { stats, kategori, properti, services, keunggulan, faqs, hargaLabel, rp, kotaList } from '@/lib/data';
+import { hitungBiaya } from '@/lib/biaya';
 
 const ICONS = { House, Home: House, Building2, Store, Trees, Palmtree, BedDouble, Warehouse, Search, Tag, KeyRound, Landmark, UserCheck, ShieldCheck };
-const KOTA_MARQUEE = ['Jakarta', 'Bandung', 'Bali', 'Surabaya', 'Yogyakarta', 'Tangerang', 'Bekasi', 'Bogor'];
+const KOTA_MARQUEE = kotaList.slice(1);
 
 function Label({ no, children }) {
   return (
@@ -25,8 +26,10 @@ function Label({ no, children }) {
 
 export default function HomePage() {
   const featured = properti.filter((p) => p.featured);
+  const sampul = properti.find((p) => p.id === 8) || featured[0];
   const hero = featured[0];
-  const rest = featured.slice(1, 4);
+  const rest = featured.filter((p) => p.id !== hero.id && p.id !== sampul.id).slice(0, 3);
+  const contoh = hitungBiaya({ harga: hero.harga });
 
   return (
     <main className="relative z-10">
@@ -35,43 +38,37 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
           <Reveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-forest/20 bg-forest/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-forest">
-              <BadgeCheck size={14} /> Marketplace properti tepercaya
+              <BadgeCheck size={14} /> {properti.length} listing · semuanya sudah dikunjungi
             </span>
             <h1 className="mt-6 font-display text-5xl leading-[1.02] text-ink md:text-7xl">
-              Setiap orang berhak punya <span className="italic text-forest">tempat pulang</span>.
+              Rumah yang sudah kami <span className="italic text-forest">datangi</span>, bukan sekadar didaftarkan.
             </h1>
             <p className="mt-6 max-w-md text-lg text-muted">
-              Jual, beli, dan sewa properti di seluruh Indonesia — terverifikasi, transparan, dan didampingi agen profesional.
+              Setiap listing diukur ulang, difoto sendiri, dan bisa dihitung biaya belinya sampai rupiah terakhir.
             </p>
             <div className="mt-8"><SearchBar /></div>
-            <div className="mt-6 flex items-center gap-4">
-              <div className="flex -space-x-2">
-                {['rm2.jpg', 'rm5.jpg', 'rm9.jpg', 'rm3.jpg'].map((f) => (
-                  <span key={f} className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-cream">
-                    <Image src={`/images/${f}`} alt="" fill sizes="36px" className="object-cover" />
-                  </span>
-                ))}
-              </div>
-              <p className="text-sm text-muted"><span className="font-display text-base text-ink">4,9</span> ★ · dipercaya <span className="font-semibold text-ink">8.300+</span> keluarga</p>
-            </div>
+            <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
+              {['Luas dicocokkan dengan sertifikat', 'Biaya beli dihitung', 'Survei dijadwalkan'].map((t) => (
+                <li key={t} className="flex items-center gap-1.5"><BadgeCheck size={15} className="text-forest" /> {t}</li>
+              ))}
+            </ul>
           </Reveal>
 
           <Reveal delay={0.15}>
             <div className="relative mx-auto w-full max-w-md">
               <div className="arch relative aspect-[4/5] w-full overflow-hidden bg-sand shadow-xl">
-                <Image src="/images/rm4.jpg" alt="Properti unggulan" fill priority sizes="(max-width:1024px) 100vw, 45vw" className="object-cover" />
+                <Image src={sampul.media.foto[0]} alt={sampul.judul} fill priority sizes="(max-width:1024px) 100vw, 45vw" className="object-cover" />
               </div>
               {/* Floating featured card */}
-              <Link href={`/properti/${hero.id}`} className="absolute -bottom-4 -left-4 w-60 rounded-2xl border border-black/5 bg-white/95 p-4 shadow-xl backdrop-blur transition hover:-translate-y-1">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-gold">{hero.jenisProperti} · {hero.status}</p>
-                <p className="mt-1 line-clamp-1 font-display text-base text-ink">{hero.judul}</p>
-                <p className="mt-1 flex items-center gap-1 text-xs text-muted"><MapPin size={12} /> {hero.lokasi.kota}</p>
-                <p className="mt-2 font-display text-xl text-forest">{formatHarga(hero.harga)}</p>
+              <Link href={`/properti/${sampul.id}`} className="absolute -bottom-4 -left-4 w-60 rounded-2xl border border-black/5 bg-white/95 p-4 shadow-xl backdrop-blur transition hover:-translate-y-1">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{sampul.jenisProperti} · {sampul.status}</p>
+                <p className="mt-1 line-clamp-1 font-display text-base text-ink">{sampul.judul}</p>
+                <p className="mt-1 flex items-center gap-1 text-xs text-muted"><MapPin size={12} /> {sampul.lokasi.kecamatan}, {sampul.lokasi.kota}</p>
+                <p className="mt-2 font-display text-xl text-forest">{hargaLabel(sampul)}</p>
               </Link>
-              {/* rating chip */}
               <div className="absolute -right-3 top-6 hidden rounded-2xl bg-forest px-4 py-3 text-center text-cream shadow-lg sm:block">
-                <p className="font-display text-2xl">120+</p>
-                <p className="text-[10px] uppercase tracking-wide text-cream/70">Kota</p>
+                <p className="font-display text-2xl">{KOTA_MARQUEE.length}</p>
+                <p className="text-[10px] uppercase tracking-wide text-cream/80">Kota</p>
               </div>
             </div>
           </Reveal>
@@ -84,8 +81,8 @@ export default function HomePage() {
           {[0, 1].map((dup) => (
             <div key={dup} className="flex shrink-0 items-center" aria-hidden={dup === 1}>
               {KOTA_MARQUEE.map((k) => (
-                <span key={k} className="flex items-center gap-6 px-6 font-display text-2xl">
-                  {k} <span className="text-gold">✦</span>
+                <span key={k} className="flex items-center gap-6 whitespace-nowrap px-6 font-display text-2xl">
+                  {k} <span className="text-sand" aria-hidden="true">✦</span>
                 </span>
               ))}
             </div>
@@ -97,14 +94,15 @@ export default function HomePage() {
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <Reveal><Label no="01">Kategori</Label><h2 className="mt-4 font-display text-3xl text-ink md:text-4xl">Cari sesuai kebutuhanmu</h2></Reveal>
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {kategori.map((k, i) => {
               const Icon = ICONS[k.icon] || House;
               return (
                 <Reveal key={k.jenis} delay={i * 0.05}>
-                  <Link href={`/properti?jenis=${k.jenis}`} className="flex h-full flex-col items-center gap-3 rounded-2xl border border-black/5 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-forest/30">
+                  <Link href={`/properti?jenis=${k.jenis}`} className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-black/5 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-forest/30">
                     <span className="grid h-12 w-12 place-items-center rounded-xl bg-forest/10 text-forest transition group-hover:bg-forest group-hover:text-cream"><Icon size={22} /></span>
                     <span className="text-sm font-semibold text-ink">{k.jenis}</span>
+                    <span className="-mt-2 text-xs text-muted">{properti.filter((p) => p.jenisProperti === k.jenis).length} listing</span>
                   </Link>
                 </Reveal>
               );
@@ -117,7 +115,7 @@ export default function HomePage() {
       <section className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="flex items-end justify-between gap-4">
-            <Reveal><Label no="02">Pilihan terbaik</Label><h2 className="mt-4 font-display text-3xl text-ink md:text-4xl">Properti unggulan</h2></Reveal>
+            <Reveal><Label no="02">Minggu ini</Label><h2 className="mt-4 font-display text-3xl text-ink md:text-4xl">Yang sedang kami tawarkan</h2></Reveal>
             <Link href="/properti" className="hidden items-center gap-1 text-sm font-semibold text-forest hover:underline sm:inline-flex">Lihat semua <ArrowUpRight size={16} /></Link>
           </div>
 
@@ -125,19 +123,20 @@ export default function HomePage() {
           <Reveal className="mt-10">
             <div className="grid overflow-hidden rounded-3xl border border-black/5 bg-white shadow-sm lg:grid-cols-2">
               <div className="relative min-h-[300px] lg:min-h-[420px]">
-                <Image src={hero.media.foto[0]} alt={hero.judul} fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
-                <span className="absolute left-5 top-5 rounded-full bg-forest px-3 py-1 text-xs font-semibold text-cream">Unggulan · {hero.status}</span>
+                <Image src={hero.media.foto[0]} alt="" fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
+                <span className="absolute left-5 top-5 rounded-full bg-forest px-3 py-1 text-xs font-semibold text-cream">{hero.status}</span>
               </div>
               <div className="flex flex-col justify-center p-8 md:p-12">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">{hero.jenisProperti} · {hero.lokasi.kota}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">{hero.jenisProperti} · {hero.lokasi.kecamatan}, {hero.lokasi.kota}</p>
                 <h3 className="mt-3 font-display text-3xl leading-tight text-ink md:text-4xl">{hero.judul}</h3>
                 <p className="mt-4 text-muted">{hero.deskripsi}</p>
                 <div className="mt-6 flex flex-wrap gap-6 text-sm text-ink/80">
                   <span className="flex items-center gap-1.5"><BedDouble size={16} /> {hero.spesifikasi.kamarTidur} K. Tidur</span>
                   <span className="flex items-center gap-1.5"><House size={16} /> {hero.spesifikasi.luasBangunan} m²</span>
+                  <span className="flex items-center gap-1.5"><Ruler size={16} /> tanah {hero.spesifikasi.luasTanah} m²</span>
                 </div>
-                <div className="mt-8 flex items-center justify-between">
-                  <p className="font-display text-3xl text-forest">{formatHarga(hero.harga)}</p>
+                <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+                  <p className="font-display text-3xl text-forest">{hargaLabel(hero)}</p>
                   <Link href={`/properti/${hero.id}`} className="inline-flex items-center gap-2 rounded-full bg-forest px-6 py-3 text-sm font-semibold text-cream transition hover:bg-forest-soft">Lihat detail <ArrowRight size={15} /></Link>
                 </div>
               </div>
@@ -168,12 +167,12 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
           <Reveal>
             <div className="arch-sm relative aspect-[4/5] w-full max-w-md overflow-hidden bg-sand shadow-xl">
-              <Image src="/images/rm8.jpg" alt="Hunian Propertia" fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
+              <Image src="/images/properti/ruang-tamu-terang.webp" alt="" fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
             </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <Label no="—">Kenapa Propertia</Label>
-            <h2 className="mt-4 font-display text-3xl text-ink md:text-5xl">Cara cerdas &amp; aman mencari properti</h2>
+            <Label no="—">Sebelum tayang</Label>
+            <h2 className="mt-4 font-display text-3xl text-ink md:text-5xl">Tiga hal yang kami lakukan untuk setiap listing</h2>
             <div className="mt-10 space-y-8">
               {keunggulan.map((k, i) => (
                 <div key={k.title} className="flex gap-5">
@@ -192,8 +191,8 @@ export default function HomePage() {
       {/* Layanan */}
       <section className="bg-sand/50 px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <Reveal><Label no="03">Layanan</Label><h2 className="mt-4 font-display text-3xl text-ink md:text-4xl">Semua kebutuhan properti, satu tempat</h2></Reveal>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-black/5 bg-black/5 md:grid-cols-2 lg:grid-cols-3">
+          <Reveal><Label no="03">Layanan</Label><h2 className="mt-4 font-display text-3xl text-ink md:text-4xl">Dari survei pertama sampai kunci</h2></Reveal>
+          <div className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-black/5 bg-black/5 md:grid-cols-2 lg:grid-cols-4">
             {services.map((s) => {
               const Icon = ICONS[s.icon] || ShieldCheck;
               return (
@@ -210,39 +209,40 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimoni */}
+      {/* Biaya — cuplikan kalkulator */}
       <section className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <Reveal><Label no="—">Kata mereka</Label></Reveal>
-          <div className="mt-8 grid gap-8 lg:grid-cols-[1.3fr_1fr]">
-            <Reveal>
-              <figure className="flex h-full flex-col justify-between rounded-3xl bg-forest p-8 text-cream md:p-12">
-                <blockquote className="font-display text-2xl leading-snug md:text-3xl">“{testimonials[0].quote}”</blockquote>
-                <figcaption className="mt-8 flex items-center gap-3">
-                  <span className="grid h-11 w-11 place-items-center rounded-full bg-cream font-display text-forest">{testimonials[0].nama[0]}</span>
-                  <span><span className="block font-semibold">{testimonials[0].nama}</span><span className="block text-sm text-cream/70">{testimonials[0].peran}</span></span>
-                </figcaption>
-              </figure>
-            </Reveal>
-            <div className="grid gap-8">
-              {testimonials.slice(1).map((t, i) => (
-                <Reveal key={t.nama} delay={i * 0.1}>
-                  <figure className="rounded-3xl border border-black/5 bg-white p-7 shadow-sm">
-                    <div className="mb-3 flex gap-0.5 text-gold">{Array.from({ length: 5 }).map((_, k) => <Star key={k} size={15} className="fill-gold" />)}</div>
-                    <blockquote className="text-ink/85">“{t.quote}”</blockquote>
-                    <figcaption className="mt-4 text-sm"><span className="font-semibold text-ink">{t.nama}</span> <span className="text-muted">· {t.peran}</span></figcaption>
-                  </figure>
-                </Reveal>
+        <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
+          <Reveal>
+            <Label no="04">Hitung biaya</Label>
+            <h2 className="mt-4 font-display text-3xl text-ink md:text-5xl">Harga {hargaLabel(hero)}, tapi yang perlu disiapkan lebih dari itu</h2>
+            <p className="mt-4 max-w-lg text-muted">Contoh untuk {hero.judul.toLowerCase()} dengan KPR, uang muka 20%, bunga 7,5%, dan tenor 20 tahun.</p>
+            <Link href={`/biaya?id=${hero.id}`} className="mt-8 inline-flex items-center gap-2 rounded-full bg-forest px-6 py-3 text-sm font-semibold text-cream transition hover:bg-forest-soft"><Calculator size={16} /> Hitung untuk rumah lain</Link>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <dl className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm md:p-8">
+              {contoh.rincian.map((r) => (
+                <div key={r.k} className="flex items-baseline justify-between gap-4 border-b border-black/10 py-3">
+                  <dt className="text-ink/80">{r.label}</dt>
+                  <dd className="font-display text-lg text-ink">{rp(r.nilai)}</dd>
+                </div>
               ))}
-            </div>
-          </div>
+              <div className="flex items-baseline justify-between gap-4 pt-4">
+                <dt className="font-semibold text-ink">Dana tunai saat akad</dt>
+                <dd className="font-display text-2xl text-forest md:text-3xl">{rp(contoh.tunai)}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 pt-2 text-sm text-muted">
+                <dt>Cicilan per bulan</dt>
+                <dd>±{rp(contoh.cicilan)}</dd>
+              </div>
+            </dl>
+          </Reveal>
         </div>
       </section>
 
       {/* FAQ */}
       <section className="bg-sand/50 px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">
-          <Reveal className="text-center"><Label no="04"><span className="mx-auto">FAQ</span></Label><h2 className="mt-4 font-display text-3xl text-ink md:text-4xl">Pertanyaan yang sering diajukan</h2></Reveal>
+          <Reveal><Label no="05">FAQ</Label><h2 className="mt-4 font-display text-3xl text-ink md:text-4xl">Pertanyaan yang sering diajukan</h2></Reveal>
           <div className="mt-10 space-y-3">
             {faqs.map((f) => (
               <Reveal key={f.q}>
@@ -263,13 +263,13 @@ export default function HomePage() {
       <section className="px-4 pb-20 sm:px-6 lg:px-8">
         <Reveal className="mx-auto max-w-7xl">
           <div className="relative overflow-hidden rounded-3xl bg-forest px-8 py-16 text-cream md:px-16 md:py-20">
-            <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-gold/15 blur-2xl" />
+            <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-gold/15 blur-2xl" aria-hidden="true" />
             <div className="relative max-w-2xl">
-              <h2 className="font-display text-4xl leading-tight md:text-5xl">Siap menemukan atau menjual properti?</h2>
-              <p className="mt-4 max-w-xl text-cream/80">Pasang iklan gratis atau jelajahi ribuan listing terverifikasi sekarang juga.</p>
+              <h2 className="font-display text-4xl leading-tight md:text-5xl">Punya rumah yang layak dikurasi?</h2>
+              <p className="mt-4 max-w-xl text-cream/80">Ceritakan sedikit tentang rumahmu. Kami datang, mengukur, dan memotret — dan kami jujur bila belum cocok untuk ditayangkan.</p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/properti" className="inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3 font-semibold text-ink transition hover:opacity-90">Jelajahi Properti <ArrowRight size={16} /></Link>
-                <a href={waLink(site.wa, 'Halo Propertia, saya mau pasang iklan properti.')} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-cream/30 px-7 py-3 font-semibold text-cream transition hover:bg-cream/10">Pasang Iklan</a>
+                <Link href="/properti" className="inline-flex items-center gap-2 rounded-full bg-cream px-7 py-3 font-semibold text-forest transition hover:opacity-90">Jelajahi properti <ArrowRight size={16} /></Link>
+                <Link href="/kontak?topik=jual" className="inline-flex items-center gap-2 rounded-full border border-cream/40 px-7 py-3 font-semibold text-cream transition hover:bg-cream/10">Ajukan listing</Link>
               </div>
             </div>
           </div>

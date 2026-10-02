@@ -26,21 +26,21 @@ export default function SearchBar() {
 
   return (
     <form onSubmit={submit} className="rounded-2xl border border-black/5 bg-white p-3 shadow-xl sm:p-4">
-      <div className="grid gap-3 md:grid-cols-[1.4fr_1fr_1fr_1fr_auto]">
-        <div className="relative">
+      <div className="grid gap-3 sm:grid-cols-6">
+        <div className="relative sm:col-span-4">
           <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari lokasi / kata kunci…" className={`${sel} pl-10`} />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari kawasan / kata kunci…" aria-label="Kata kunci" className={`${sel} pl-10`} />
         </div>
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className={sel} aria-label="Status">
-          {statusList.map((s) => <option key={s} value={s}>{s === 'Semua' ? 'Semua Status' : s}</option>)}
-        </select>
-        <select value={jenis} onChange={(e) => setJenis(e.target.value)} className={sel} aria-label="Jenis">
-          {jenisList.map((j) => <option key={j} value={j}>{j === 'Semua' ? 'Semua Jenis' : j}</option>)}
-        </select>
-        <select value={kota} onChange={(e) => setKota(e.target.value)} className={sel} aria-label="Kota">
+        <select value={kota} onChange={(e) => setKota(e.target.value)} className={`${sel} sm:col-span-2`} aria-label="Kota">
           {kotaList.map((k) => <option key={k} value={k}>{k === 'Semua' ? 'Semua Kota' : k}</option>)}
         </select>
-        <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-xl bg-forest px-6 py-3 text-sm font-semibold text-cream transition hover:bg-forest-soft">
+        <select value={status} onChange={(e) => setStatus(e.target.value)} className={`${sel} sm:col-span-2`} aria-label="Status">
+          {statusList.map((s) => <option key={s} value={s}>{s === 'Semua' ? 'Semua Status' : s}</option>)}
+        </select>
+        <select value={jenis} onChange={(e) => setJenis(e.target.value)} className={`${sel} sm:col-span-2`} aria-label="Jenis">
+          {jenisList.map((j) => <option key={j} value={j}>{j === 'Semua' ? 'Semua Jenis' : j}</option>)}
+        </select>
+        <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-xl bg-forest px-6 py-3 text-sm font-semibold text-cream transition hover:bg-forest-soft sm:col-span-2">
           <Search size={16} /> Cari
         </button>
       </div>

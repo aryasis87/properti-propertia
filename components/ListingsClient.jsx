@@ -4,17 +4,10 @@ import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import PropertyCard from '@/components/PropertyCard';
-import { properti, statusList, jenisList, kotaList } from '@/lib/data';
+import { properti, statusList, jenisList, kotaList, hargaFilter } from '@/lib/data';
 
-const HARGA = [
-  { label: 'Semua Harga', v: 'all' },
-  { label: '< Rp 500 Jt', v: '5e8' },
-  { label: '< Rp 1 M', v: '1e9' },
-  { label: '< Rp 2 M', v: '2e9' },
-  { label: '< Rp 5 M', v: '5e9' },
-  { label: '≥ Rp 5 M', v: 'gt5e9' },
-];
-const KT = ['Semua', '1', '2', '3', '4'];
+// Rentang harga jual dan sewa dipisah: harga sewa per periode tidak sebanding dengan harga jual.
+const KT = ['Semua', ...Array.from({ length: Math.min(4, Math.max(...properti.map((p) => p.spesifikasi.kamarTidur))) }, (_, i) => String(i + 1))];
 const SORT = [{ label: 'Terbaru', v: 'baru' }, { label: 'Harga Termurah', v: 'murah' }, { label: 'Harga Termahal', v: 'mahal' }];
 
 export default function ListingsClient() {
@@ -23,7 +16,9 @@ export default function ListingsClient() {
   const [status, setStatus] = useState(sp.get('status') || 'Semua');
   const [jenis, setJenis] = useState(sp.get('jenis') || 'Semua');
   const [kota, setKota] = useState(sp.get('kota') || 'Semua');
-  const [harga, setHarga] = useState('all');
+  const [harga, setHarga] = useState(sp.get('harga') || 'all');
+  const rentang = hargaFilter.filter((h) => status === 'Semua' || h.status === status);
+  const gantiStatus = (v) => { setStatus(v); const h = hargaFilter.find((x) => x.v === harga); if (h && v !== 'Semua' && h.status !== v) setHarga('all'); };
   const [kt, setKt] = useState('Semua');
   const [sort, setSort] = useState('baru');
 
@@ -31,15 +26,18 @@ export default function ListingsClient() {
 
   const list = useMemo(() => {
     let r = properti.filter((p) => {
-      const text = `${p.judul} ${p.lokasi.kota} ${p.lokasi.kecamatan} ${p.jenisProperti}`.toLowerCase();
+      const text = `${p.judul} ${p.lokasi.kota} ${p.lokasi.kecamatan} ${p.jenisProperti} ${(p.suasana || []).join(' ')}`.toLowerCase();
       if (q.trim() && !text.includes(q.trim().toLowerCase())) return false;
       if (status !== 'Semua' && p.status !== status) return false;
       if (jenis !== 'Semua' && p.jenisProperti !== jenis) return false;
       if (kota !== 'Semua' && p.lokasi.kota !== kota) return false;
       if (kt !== 'Semua' && p.spesifikasi.kamarTidur < Number(kt)) return false;
-      if (harga !== 'all') {
-        if (harga === 'gt5e9') { if (p.harga < 5e9) return false; }
-        else if (p.harga >= Number(harga)) return false;
+      const h = hargaFilter.find((x) => x.v === harga);
+      if (h) {
+        if (p.status !== h.status) return false;
+        const nilai = h.perBulan && p.periode === 'tahun' ? p.harga / 12 : p.harga;
+        if (h.min && nilai < h.min) return false;
+        if (h.max && nilai >= h.max) return false;
       }
       return true;
     });
@@ -61,19 +59,19 @@ export default function ListingsClient() {
           <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
             <div className="relative md:col-span-3 lg:col-span-2">
               <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari lokasi / kata kunci…" className={`${sel} w-full pl-9`} />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari kawasan / kata kunci…" aria-label="Kata kunci" className={`${sel} w-full pl-9`} />
             </div>
-            <select value={status} onChange={(e) => setStatus(e.target.value)} className={sel} aria-label="Status">{statusList.map((s) => <option key={s} value={s}>{s === 'Semua' ? 'Semua Status' : s}</option>)}</select>
+            <select value={status} onChange={(e) => gantiStatus(e.target.value)} className={sel} aria-label="Status">{statusList.map((s) => <option key={s} value={s}>{s === 'Semua' ? 'Semua Status' : s}</option>)}</select>
             <select value={jenis} onChange={(e) => setJenis(e.target.value)} className={sel} aria-label="Jenis">{jenisList.map((j) => <option key={j} value={j}>{j === 'Semua' ? 'Semua Jenis' : j}</option>)}</select>
             <select value={kota} onChange={(e) => setKota(e.target.value)} className={sel} aria-label="Kota">{kotaList.map((k) => <option key={k} value={k}>{k === 'Semua' ? 'Semua Kota' : k}</option>)}</select>
-            <select value={harga} onChange={(e) => setHarga(e.target.value)} className={sel} aria-label="Harga">{HARGA.map((h) => <option key={h.v} value={h.v}>{h.label}</option>)}</select>
+            <select value={harga} onChange={(e) => setHarga(e.target.value)} className={sel} aria-label="Harga"><option value="all">Semua harga</option>{rentang.map((h) => <option key={h.v} value={h.v}>{h.label}</option>)}</select>
             <select value={kt} onChange={(e) => setKt(e.target.value)} className={sel} aria-label="Kamar tidur">{KT.map((k) => <option key={k} value={k}>{k === 'Semua' ? 'Semua K. Tidur' : `${k}+ Kamar`}</option>)}</select>
           </div>
         </div>
 
         {/* Result header */}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-muted"><span className="font-semibold text-ink">{list.length}</span> properti ditemukan{active && (
+          <p className="text-sm text-muted" aria-live="polite"><span className="font-semibold text-ink">{list.length}</span> properti ditemukan{active && (
             <button onClick={reset} className="ml-3 inline-flex items-center gap-1 text-forest hover:underline"><X size={13} /> reset filter</button>
           )}</p>
           <label className="flex items-center gap-2 text-sm text-muted">Urutkan:

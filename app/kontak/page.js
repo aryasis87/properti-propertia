@@ -1,69 +1,62 @@
-'use client';
-import { useState } from 'react';
-import { Mail, Phone, MapPin, Check, MessageCircle, Clock } from 'lucide-react';
+import { Suspense } from 'react';
+import Link from 'next/link';
+import { Mail, Clock, Map as Peta, Users } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
-import { site, waLink } from '@/lib/data';
+import FormKontak from '@/components/FormKontak';
+import { site, properti, faqs } from '@/lib/data';
+
+export const metadata = {
+  title: 'Kontak',
+  description: `Tanya listing, jual atau sewakan properti, atau ajak ${site.name} bekerja sama.`,
+  alternates: { canonical: '/kontak' },
+};
 
 export default function KontakPage() {
-  const [form, setForm] = useState({ nama: '', email: '', telepon: '', pesan: '' });
-  const [sent, setSent] = useState(false);
-  const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const submit = (e) => { e.preventDefault(); if (!form.nama.trim() || !form.email.trim() || !form.pesan.trim()) return; setSent(true); };
-  const field = 'w-full rounded-xl border border-black/10 bg-cream px-4 py-3 text-sm text-ink outline-none transition focus:border-forest';
+  const wilayah = Array.from(new Set(properti.map((p) => p.agen.wilayah)));
+  const konsultan = new Set(properti.map((p) => p.agen.kode)).size;
 
   return (
     <main className="relative z-10">
-      <PageHeader kicker="Kontak" title="Mari terhubung" subtitle="Ada pertanyaan, masukan, atau butuh bantuan menemukan properti? Tim kami siap membantu." />
+      <PageHeader kicker="Kontak" title={site.kontak?.judul || 'Tulis, kami yang menjadwalkan'} subtitle={site.kontak?.sub || 'Untuk pertanyaan tentang listing tertentu, jalur tercepat adalah tombol jadwal survei di halaman propertinya.'} />
 
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1.3fr]">
-          {/* Info */}
           <div className="space-y-4">
-            <Info icon={MapPin} label="Alamat" value={site.address} />
-            <Info icon={Phone} label="Telepon" value={site.phone} href={`tel:${site.phone.replace(/\s/g, '')}`} />
-            <Info icon={Mail} label="Email" value={site.email} href={`mailto:${site.email}`} />
-            <Info icon={Clock} label="Jam Operasional" value="Senin–Sabtu, 08.00–18.00 WIB" />
-            <a href={waLink(site.wa, 'Halo Propertia, saya butuh bantuan.')} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-2xl bg-forest py-3.5 font-semibold text-cream transition hover:bg-forest-soft">
-              <MessageCircle size={18} /> Chat WhatsApp
-            </a>
-          </div>
-
-          {/* Form */}
-          <div>
-            {sent ? (
-              <div className="rounded-3xl border border-black/5 bg-white p-10 text-center shadow-sm">
-                <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-forest text-cream"><Check size={28} /></div>
-                <h2 className="mt-4 font-display text-2xl text-ink">Terima kasih, {form.nama}!</h2>
-                <p className="mt-1 text-muted">Ini situs contoh, jadi pesanmu tidak dikirim ke mana pun. Pada marketplace sungguhan, pesan ini langsung masuk ke tim atau agen properti.</p>
-                <button onClick={() => { setSent(false); setForm({ nama: '', email: '', telepon: '', pesan: '' }); }} className="mt-6 rounded-full border border-black/10 px-6 py-2.5 text-sm font-semibold text-ink transition hover:border-forest hover:text-forest">Kirim lagi</button>
+            <Info icon={Mail} label="Email" value={site.email} note="Alamat contoh — situs ini purwarupa." />
+            <Info icon={Clock} label="Jam layanan" value={site.jam} />
+            <Info icon={Users} label="Konsultan" value={`${konsultan} orang`} />
+            <Info icon={Peta} label="Wilayah" value={wilayah.join(' · ')} />
+            {faqs.length > 0 && (
+              <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
+                <p className="text-xs uppercase tracking-wide text-muted">Sebelum bertanya</p>
+                <ul className="mt-3 space-y-3 text-sm">
+                  {faqs.slice(0, 3).map((f) => (
+                    <li key={f.q}><p className="font-semibold text-ink">{f.q}</p><p className="mt-0.5 text-muted">{f.a}</p></li>
+                  ))}
+                </ul>
+                <Link href="/properti" className="mt-4 inline-block text-sm font-semibold text-forest underline-offset-4 hover:underline">Lihat semua properti</Link>
               </div>
-            ) : (
-              <form onSubmit={submit} className="space-y-4 rounded-3xl border border-black/5 bg-white p-6 shadow-sm md:p-8">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <input name="nama" value={form.nama} onChange={handle} placeholder="Nama lengkap" required className={field} />
-                  <input type="email" name="email" value={form.email} onChange={handle} placeholder="Email" required className={field} />
-                </div>
-                <input name="telepon" value={form.telepon} onChange={handle} placeholder="Nomor telepon (opsional)" className={field} />
-                <textarea name="pesan" value={form.pesan} onChange={handle} placeholder="Tulis pesanmu…" rows={6} required className={`${field} resize-none`} />
-                <button type="submit" className="w-full rounded-xl bg-forest py-3.5 font-semibold text-cream transition hover:bg-forest-soft">Kirim Pesan</button>
-              </form>
             )}
           </div>
+
+          <Suspense fallback={<div className="rounded-3xl border border-black/5 bg-white p-10 text-center text-muted">Memuat formulir…</div>}>
+            <FormKontak />
+          </Suspense>
         </div>
       </section>
     </main>
   );
 }
 
-function Info({ icon: Icon, label, value, href }) {
-  const inner = (
-    <div className="flex items-start gap-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm transition hover:border-forest/30">
+function Info({ icon: Icon, label, value, note }) {
+  return (
+    <div className="flex items-start gap-4 rounded-2xl border border-black/5 bg-white p-5 shadow-sm">
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest"><Icon size={20} /></span>
-      <div>
+      <div className="min-w-0">
         <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
-        <p className="mt-0.5 font-semibold text-ink">{value}</p>
+        <p className="mt-0.5 break-words font-semibold text-ink">{value}</p>
+        {note && <p className="mt-0.5 text-xs text-muted">{note}</p>}
       </div>
     </div>
   );
-  return href ? <a href={href}>{inner}</a> : inner;
 }
